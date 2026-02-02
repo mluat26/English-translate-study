@@ -1,0 +1,5 @@
+{
+  "name": "LinguaFlow - AI Translation Tutor",
+  "description": "A smart English learning application focusing on translation practice. Users can generate content via AI or import their own, practice translating sentence-by-sentence, and get instant contextual vocabulary definitions.",
+  "requestFramePermissions": []
+}
