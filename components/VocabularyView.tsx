@@ -59,7 +59,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ savedWords, onRe
   // Reset state on card change
   useEffect(() => {
     setIsFlipped(false);
-    setShowHint(false);
+    setShowHint(false); // Default hidden translation
   }, [currentCardIndex]);
 
   const handleAddSubmit = (e: React.FormEvent) => {
@@ -107,25 +107,6 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ savedWords, onRe
   };
 
   const isFinished = currentCardIndex >= studyQueue.length;
-
-  const renderClozeContext = (context: string, word: string) => {
-      if (!context) return <span className="italic text-gray-400">Word: <span className="font-bold text-gray-600">{word.replace(/./g, '_')}</span></span>;
-      
-      const parts = context.split(new RegExp(`(${word})`, 'gi'));
-      return (
-          <span className="font-serif text-xl leading-relaxed text-gray-800">
-              {parts.map((part, i) => 
-                  part.toLowerCase() === word.toLowerCase() ? (
-                      <span key={i} className="bg-blue-100 text-blue-800 font-bold px-3 py-0.5 rounded mx-1 min-w-[80px] inline-block text-center border-b-2 border-blue-300">
-                          [...]
-                      </span>
-                  ) : (
-                      <span key={i}>{part}</span>
-                  )
-              )}
-          </span>
-      );
-  };
 
   // Progress Bar Helper
   const progressPercent = useMemo(() => {
@@ -298,24 +279,31 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ savedWords, onRe
 
                                     {/* Contextual Question (VISIBLE) */}
                                     <div className="mb-6 relative w-full flex-1 flex flex-col items-center justify-center">
-                                        {renderClozeContext(studyQueue[currentCardIndex].context || '', studyQueue[currentCardIndex].word)}
                                         
-                                        {/* Hint Toggle & Hidden Definition */}
-                                        <div className="mt-6 flex flex-col items-center justify-center gap-3 w-full">
+                                        {/* Definition Box (Primary Hint) */}
+                                        <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-100 w-full shadow-sm mb-6">
+                                             <p className="text-xl text-yellow-900 font-serif italic leading-relaxed">
+                                                "{studyQueue[currentCardIndex].definition}"
+                                             </p>
+                                        </div>
+                                        
+                                        {/* Translation Toggle */}
+                                        <div className="flex flex-col items-center justify-center gap-4 w-full">
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); setShowHint(!showHint); }}
-                                                className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-wider"
+                                                className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-wider"
                                             >
-                                                {showHint ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                                {showHint ? 'Hide Meaning' : 'Show Meaning'}
+                                                {showHint ? (
+                                                    <><EyeOff className="w-4 h-4" /> Hide Meaning</>
+                                                ) : (
+                                                    <><Eye className="w-4 h-4" /> Show Meaning</>
+                                                )}
                                             </button>
                                             
                                             <div className={`transition-all duration-300 overflow-hidden w-full ${showHint ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                                <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100 inline-block max-w-full">
-                                                    <p className="text-sm text-yellow-800 font-medium italic">
-                                                        "{studyQueue[currentCardIndex].definition}"
-                                                    </p>
-                                                </div>
+                                                <p className="text-lg text-slate-800 font-medium italic">
+                                                    "{studyQueue[currentCardIndex].translation}"
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -347,7 +335,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ savedWords, onRe
                                     
                                     <div className="space-y-4 mb-8 max-w-xs">
                                         <p className="text-2xl font-bold text-yellow-400">{studyQueue[currentCardIndex].translation}</p>
-                                        <p className="text-sm text-slate-300 opacity-80 border-t border-slate-700 pt-3 mt-2">{studyQueue[currentCardIndex].definition}</p>
+                                        <p className="text-sm text-slate-300 opacity-80 border-t border-slate-700 pt-3 mt-2">{studyQueue[currentCardIndex].context}</p>
                                     </div>
                                     
                                     {/* Grading Buttons - Stop Propagation so they don't flip the card */}
