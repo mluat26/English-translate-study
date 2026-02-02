@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { VocabularyItem } from '../types';
-import { ArrowLeft, BookOpen, Brain, CheckCircle2, Trash2, Search, RotateCcw, ChevronRight, ChevronLeft, Eye, EyeOff, Layers, Zap, RotateCw, Plus } from 'lucide-react';
+import { ArrowLeft, Brain, CheckCircle2, Trash2, Search, RotateCcw, Eye, EyeOff, Layers, Zap, Plus } from 'lucide-react';
 
 interface VocabularyViewProps {
   savedWords: VocabularyItem[];
@@ -148,28 +148,19 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ savedWords, onRe
         </div>
         <div className="flex items-center gap-3">
              {mode === 'LIST' && (
-                <>
-                    <button 
-                        onClick={() => setShowAddModal(true)}
-                        className="p-2 hover:bg-gray-100 text-gray-600 rounded-full border border-gray-200"
-                        title="Add Manual Card"
-                    >
-                        <Plus className="w-5 h-5" />
-                    </button>
-                    <button 
-                        onClick={startLearning}
-                        disabled={filteredWords.length === 0}
-                        className="bg-slate-900 hover:bg-black disabled:opacity-50 text-white px-5 py-2.5 rounded-full font-bold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all"
-                    >
-                        <Brain className="w-5 h-5" /> Start Session
-                    </button>
-                </>
+                <button 
+                    onClick={() => setShowAddModal(true)}
+                    className="p-2 hover:bg-gray-100 text-gray-600 rounded-full border border-gray-200"
+                    title="Add Manual Card"
+                >
+                    <Plus className="w-5 h-5" />
+                </button>
             )}
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8">
+      <div className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8 pb-24">
         
         {mode === 'LIST' ? (
             <>
@@ -490,17 +481,21 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ savedWords, onRe
                 </div>
             </div>
         )}
+
+        {/* Floating Start Session Button (Mobile Optimized) */}
+        {mode === 'LIST' && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-sm">
+                <button 
+                    onClick={startLearning}
+                    disabled={filteredWords.length === 0}
+                    className="w-full bg-slate-900 hover:bg-black disabled:opacity-50 text-white py-4 rounded-2xl font-bold shadow-2xl flex items-center justify-center gap-2 hover:scale-105 transition-all"
+                >
+                    <Brain className="w-6 h-6" /> 
+                    <span>Start Practice Session</span>
+                </button>
+            </div>
+        )}
       </div>
     </div>
   );
 };
-
-// Add styles for 3D flip effect in global CSS or here
-const style = document.createElement('style');
-style.textContent = `
-  .perspective-1000 { perspective: 1000px; }
-  .preserve-3d { transform-style: preserve-3d; }
-  .backface-hidden { backface-visibility: hidden; }
-  .rotate-y-180 { transform: rotateY(180deg); }
-`;
-document.head.appendChild(style);

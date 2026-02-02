@@ -135,7 +135,8 @@ export const evaluateFullTranslation = async (original: string, userTranslation:
   
   const userPrompt = prompts.evaluate
     .replace("{original}", original)
-    .replace("{translation}", userTranslation);
+    .replace("{translation}", userTranslation)
+    + " Ensure you include a 'score' (0-100) in the JSON response.";
 
   const result = await callDeepSeek(SYSTEM_PROMPT, userPrompt);
   return { ...result.content, usage: result.usage };

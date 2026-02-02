@@ -9,6 +9,7 @@ interface InteractiveTextProps {
   savedWords: VocabularyItem[];
   onToggleSave: (word: VocabularyItem) => void;
   onTokenUsage?: (usage: TokenUsage) => void;
+  viewMode?: 'PARAGRAPH' | 'SENTENCE';
 }
 
 export const InteractiveText: React.FC<InteractiveTextProps> = ({ 
@@ -16,7 +17,8 @@ export const InteractiveText: React.FC<InteractiveTextProps> = ({
   vocabulary, 
   savedWords,
   onToggleSave,
-  onTokenUsage
+  onTokenUsage,
+  viewMode = 'PARAGRAPH'
 }) => {
   const [selectedWord, setSelectedWord] = useState<VocabularyItem | null>(null);
   const [loadingWord, setLoadingWord] = useState<string | null>(null);
@@ -101,7 +103,7 @@ export const InteractiveText: React.FC<InteractiveTextProps> = ({
 
   // Helper to find the sentence containing the word index
   const findSentence = (fullText: string, targetWord: string): string => {
-      // Simple sentence splitter, can be improved
+      // Simple sentence splitter
       const sentences = fullText.match(/[^.!?]+[.!?]+/g) || [fullText];
       for (const sentence of sentences) {
           if (sentence.toLowerCase().includes(targetWord.toLowerCase())) {
@@ -170,8 +172,8 @@ export const InteractiveText: React.FC<InteractiveTextProps> = ({
     return savedWords.some(w => w.word === item.word);
   };
 
-  const renderParagraph = (paragraph: string, pIdx: number) => {
-    const tokens = paragraph.split(/([a-zA-ZÀ-ÿ0-9'-]+)/g);
+  const renderTextSegment = (segment: string, idx: number) => {
+    const tokens = segment.split(/([a-zA-ZÀ-ÿ0-9'-]+)/g);
     const elements: React.ReactNode[] = [];
     
     for (let i = 0; i < tokens.length; i++) {
@@ -254,6 +256,18 @@ export const InteractiveText: React.FC<InteractiveTextProps> = ({
     return elements;
   };
 
+  // Determine text segments based on mode
+  const segments = useMemo(() => {
+      if (viewMode === 'SENTENCE') {
+           // Split by sentence delimiters but keep them. 
+           // Simple regex approx: Split by .!? followed by space or end of string.
+           return text.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [text];
+      } else {
+          // Split by paragraphs
+          return text.split('\n');
+      }
+  }, [text, viewMode]);
+
   // Estimate tokens for selection: roughly words + prompt overhead
   const estimateSelectionCost = selection ? Math.ceil(selection.text.split(' ').length * 1.5 + 200) : 0;
 
@@ -280,14 +294,22 @@ export const InteractiveText: React.FC<InteractiveTextProps> = ({
           </button>
       )}
 
-      {text.split('\n').map((paragraph, pIdx) => {
-        if (!paragraph.trim()) return <br key={pIdx} />;
-        return (
-          <p key={pIdx} className="text-lg md:text-xl leading-9 book-text text-gray-800 mb-6 text-justify">
-            {renderParagraph(paragraph, pIdx)}
-          </p>
-        );
-      })}
+      {/* Text Rendering Loop */}
+      <div className="space-y-4">
+        {segments.map((segment, idx) => {
+            if (!segment.trim()) return null;
+            return (
+                <div key={idx} className={`${viewMode === 'SENTENCE' ? 'bg-slate-50 p-4 rounded-xl border border-gray-100' : 'mb-6'}`}>
+                    {viewMode === 'SENTENCE' && (
+                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 select-none">Sentence {idx + 1}</div>
+                    )}
+                    <p className="text-lg md:text-xl leading-9 book-text text-gray-800 text-justify">
+                        {renderTextSegment(segment, idx)}
+                    </p>
+                </div>
+            );
+        })}
+      </div>
 
       {/* Popover */}
       {(selectedWord || loadingWord) && popoverPosition && (

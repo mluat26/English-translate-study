@@ -1,3 +1,5 @@
+
+
 export enum AppMode {
   SETUP = 'SETUP',
   PRACTICE = 'PRACTICE',
@@ -27,12 +29,11 @@ export interface VocabularyItem {
 }
 
 export interface EvaluationResult {
-  score: number;
-  feedback: string;
   correctedTranslation: string;
   keyImprovements: string[];
   difficultWords: VocabularyItem[]; 
   usage?: TokenUsage;
+  score?: number;
 }
 
 export interface PracticeSession {
@@ -67,5 +68,5 @@ export const DEFAULT_PROMPTS: PromptConfig = {
   generate: `Write an engaging English text about "{topic}". Difficulty: {difficulty}. Length: {length} words. Return JSON: { "title": "...", "text": "...", "vocabulary": [{word, definition (VN), translation (VN), pronunciation, type, cefr}] }`,
   analyze: `Analyze this English text. Return JSON: { "title": "...", "text": "...", "vocabulary": [{word, definition (VN), translation (VN), pronunciation, type, cefr}] }`,
   lookup: `Define "{word}" in context: "{context}". Return JSON: { "definition": "VN definition", "translation": "VN word", "pronunciation": "...", "type": "...", "cefr": "..." }`,
-  evaluate: `Evaluate translation. Original: "{original}". User: "{translation}". Return JSON: { "score": 0-100, "feedback": "Concise feedback", "correctedTranslation": "...", "keyImprovements": ["..."], "difficultWords": [{word, definition, translation, type, cefr}] (List B1-C2 words) }`
+  evaluate: `Correct translation. Original: "{original}". User: "{translation}". Return JSON: { "score": 0-100, "correctedTranslation": "...", "keyImprovements": ["specific error 1", "specific error 2"], "difficultWords": [{word, definition, translation, type, cefr}] }`
 };
